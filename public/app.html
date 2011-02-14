@@ -6,6 +6,9 @@
         canvas {
             border: solid #447a81 1px;
         }
+        .hor {
+            float: left;
+}
     </style>
     <script src="lib/json2.js" type="text/javascript"></script>
     <script src="lib/easel.js" type="text/javascript"></script>
@@ -26,7 +29,13 @@ $(function () {init_web_app({})})
               image is enclosed by it.
           <h3>Use the mouse left/right arrow to rotate the images</h3>
       </div>
-      <canvas id="noscale" width="500" height="500"></canvas>
+      <div class="hor">
+          <h2>With no Scale</h2>
+          <canvas id="noscale" width="500" height="500"></canvas>
+      </div>
+      <div class ="hor">
+          <h2>With a Scale of 1.5</h2>
       <canvas id="scale15" width="500" height="500"></canvas>
+      </div>
   </body>
 </html>
