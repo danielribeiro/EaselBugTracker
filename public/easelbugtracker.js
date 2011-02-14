@@ -67,23 +67,22 @@
     return new Shape(new Graphics().beginFill(color).drawRect(this.x, this.y, this.w, this.h));
   };
   Dashboard = function(_arg, _arg2, image) {
-    var _ref, b1, b2, b3, h, img, nx, ny, ox, oy, w;
+    var _ref, boundingBox, h, ifRegWas0, img, nx, ny, obscureCorrection, ox, oy, w;
     this.canvas = _arg2;
     this.stage = _arg;
     img = new XBitmap(image, 1.5).pos(500, 200);
     _ref = img.topLeft();
     ox = _ref[0];
     oy = _ref[1];
-    b1 = box(ox, oy, img.width(), img.height());
-    this.add(img);
     w = img.width();
     h = img.height();
-    b2 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
+    boundingBox = box(ox, oy, img.width(), img.height());
+    ifRegWas0 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
     nx = ox - corr(img.scale, w);
     ny = oy - corr(img.scale, h);
-    b3 = box(nx, ny, w, h, rgb(0, 0, 127, .5));
-    img.focusBox();
-    this.add(b1, b2, b3);
+    obscureCorrection = box(nx, ny, w, h, rgb(0, 0, 127, .5));
+    this.add(img);
+    this.add(boundingBox, ifRegWas0, obscureCorrection);
     return this;
   };
   Dashboard.prototype.tick = function() {

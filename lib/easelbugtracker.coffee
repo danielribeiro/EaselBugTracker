@@ -44,16 +44,16 @@ class Dashboard
     constructor: (@stage, @canvas, image) ->
         img = new XBitmap(image, 1.5).pos 500, 200
         [ox, oy] = img.topLeft()
-        b1 = box(ox, oy, img.width(), img.height())
-        @add img
         w = img.width()
         h = img.height()
-        b2 = box(img.x, img.y, w, h, rgb 0, 127, 0, .5)
+
+        boundingBox = box(ox, oy, img.width(), img.height())
+        ifRegWas0 = box(img.x, img.y, w, h, rgb 0, 127, 0, .5)
         nx = ox - corr(img.scale, w)
         ny = oy - corr(img.scale, h)
-        b3 = box(nx,  ny, w, h, rgb 0, 0, 127, .5)
-        img.focusBox()
-        @add b1, b2, b3
+        obscureCorrection = box(nx,  ny, w, h, rgb 0, 0, 127, .5)
+        @add img
+        @add boundingBox, ifRegWas0, obscureCorrection
 
     tick: -> @stage.update()
 
