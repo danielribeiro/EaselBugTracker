@@ -172,7 +172,7 @@
     img.onload = function() {
       return doApp(img);
     };
-    return (img.src = 'github.png');
+    return (img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/github.png');
   };
 window.Dashboard = Dashboard
 window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin

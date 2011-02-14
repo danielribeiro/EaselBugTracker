@@ -112,5 +112,5 @@ doApp = (image) ->
 init_web_app = ->
     img = new Image()
     img.onload = -> doApp img
-    img.src = 'github.png'
+    img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/github.png'
 
