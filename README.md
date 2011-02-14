@@ -1,7 +1,18 @@
 EaselBugTracker
 ==============
 
-Showcasing some bugs with respect to scaling.
+Showcasing some bugs with respect to scaling. Running: 
+
+$ rackup
+
+or, if you prefer thin,
+
+$ thin start
+
+Compiling the coffeescript files:
+
+$ rake
+
 
 Meta
 ----
