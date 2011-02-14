@@ -21,40 +21,40 @@ EnhancedDisplayObjectMixin =
 mixin DisplayObject, EnhancedDisplayObjectMixin
 
 
-class XBitmap extends Container
+
+class XBitmap extends Bitmap
     constructor: (image, scale)->
-        super()
+        super(image)
         @scale = scale or 1
-        @addChild new Bitmap(image)
         @setImage image
         @scaleX = @scaleY = @scale
 
     setImage: (image) ->
         @image = image
-        @regX = @width() / 2
-        @regY = @height() / 2
+        @regX = @getWidth() / 2
+        @regY = @getHeight() / 2
 
     topLeft: -> [@x - @regX, @y - @regY]
 
-    height: -> @image.height * @scale
+    getHeight: -> @image.height * @scale
 
-    width: -> @image.width * @scale
+    getWidth: -> @image.width * @scale
 
-box = (@x, @y, @w, @h, color) ->
+box = (x, y, w, h, color) ->
     color or= rgb 127, 0, 0, .5
-    new Shape new Graphics().
+    ret = new Shape new Graphics().
         beginFill(color).
-        drawRect(@x, @y, @w, @h)
+        drawRect(x, y, w, h)
 
 
 class Dashboard
     constructor: (@stage, @canvas, image, scale) ->
-        img = new XBitmap(image, scale).pos 200, 200
+        img = @buildImage(image, scale)
         [ox, oy] = img.topLeft()
-        w = img.width()
-        h = img.height()
+        w = img.getWidth()
+        h = img.getHeight()
 
-        @boundingBox = box(ox, oy, img.width(), img.height())
+        @boundingBox = box(ox, oy, img.getWidth(), img.getHeight())
         @ifRegWas0 = box(img.x, img.y, w, h, rgb 0, 127, 0, .5)
         nx = ox - corr(img.scale, w)
         ny = oy - corr(img.scale, h)
@@ -62,6 +62,8 @@ class Dashboard
         @img = img
         @add @img
         @add @boundingBox, @ifRegWas0, @obscureCorrection
+
+    buildImage: (image, scale) -> new XBitmap(image, scale).pos 200, 200
 
     add: (args...) -> @addAll args
 
@@ -75,6 +77,11 @@ class Dashboard
     rotateRight: -> @img.rotation += 15
 
     update: -> @stage.update()
+
+
+class SimpleRectangleDashboard extends Dashboard
+    buildImage: (image, scale) ->
+        box(200, 200, image.width * scale, image.height * scale, rgb 0, 0, 0)
 
 getCanvas = (name) ->
     c = $('#' + name)

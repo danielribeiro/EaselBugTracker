@@ -1,5 +1,5 @@
 (function() {
-  var Dashboard, EnhancedDisplayObjectMixin, XBitmap, box, corr, doApp, drawAt, getCanvas, global, init_web_app, rgb;
+  var Dashboard, EnhancedDisplayObjectMixin, SimpleRectangleDashboard, XBitmap, box, corr, doApp, drawAt, getCanvas, global, init_web_app, rgb;
   var __slice = Array.prototype.slice, __extends = function(child, parent) {
     var ctor = function(){};
     ctor.prototype = parent.prototype;
@@ -40,47 +40,43 @@
   };
   mixin(DisplayObject, EnhancedDisplayObjectMixin);
   XBitmap = function(image, scale) {
-    XBitmap.__super__.constructor.call(this);
+    XBitmap.__super__.constructor.call(this, image);
     this.scale = scale || 1;
-    this.addChild(new Bitmap(image));
     this.setImage(image);
     this.scaleX = (this.scaleY = this.scale);
     return this;
   };
-  __extends(XBitmap, Container);
+  __extends(XBitmap, Bitmap);
   XBitmap.prototype.setImage = function(image) {
     this.image = image;
-    this.regX = this.width() / 2;
-    return (this.regY = this.height() / 2);
+    this.regX = this.getWidth() / 2;
+    return (this.regY = this.getHeight() / 2);
   };
   XBitmap.prototype.topLeft = function() {
     return [this.x - this.regX, this.y - this.regY];
   };
-  XBitmap.prototype.height = function() {
+  XBitmap.prototype.getHeight = function() {
     return this.image.height * this.scale;
   };
-  XBitmap.prototype.width = function() {
+  XBitmap.prototype.getWidth = function() {
     return this.image.width * this.scale;
   };
-  box = function(_arg, _arg2, _arg3, _arg4, color) {
-    this.h = _arg4;
-    this.w = _arg3;
-    this.y = _arg2;
-    this.x = _arg;
+  box = function(x, y, w, h, color) {
+    var ret;
     color || (color = rgb(127, 0, 0, .5));
-    return new Shape(new Graphics().beginFill(color).drawRect(this.x, this.y, this.w, this.h));
+    return (ret = new Shape(new Graphics().beginFill(color).drawRect(x, y, w, h)));
   };
   Dashboard = function(_arg, _arg2, image, scale) {
     var _ref, h, img, nx, ny, ox, oy, w;
     this.canvas = _arg2;
     this.stage = _arg;
-    img = new XBitmap(image, scale).pos(200, 200);
+    img = this.buildImage(image, scale);
     _ref = img.topLeft();
     ox = _ref[0];
     oy = _ref[1];
-    w = img.width();
-    h = img.height();
-    this.boundingBox = box(ox, oy, img.width(), img.height());
+    w = img.getWidth();
+    h = img.getHeight();
+    this.boundingBox = box(ox, oy, img.getWidth(), img.getHeight());
     this.ifRegWas0 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
     nx = ox - corr(img.scale, w);
     ny = oy - corr(img.scale, h);
@@ -89,6 +85,9 @@
     this.add(this.img);
     this.add(this.boundingBox, this.ifRegWas0, this.obscureCorrection);
     return this;
+  };
+  Dashboard.prototype.buildImage = function(image, scale) {
+    return new XBitmap(image, scale).pos(200, 200);
   };
   Dashboard.prototype.add = function() {
     var args;
@@ -112,6 +111,13 @@
   };
   Dashboard.prototype.update = function() {
     return this.stage.update();
+  };
+  SimpleRectangleDashboard = function() {
+    return Dashboard.apply(this, arguments);
+  };
+  __extends(SimpleRectangleDashboard, Dashboard);
+  SimpleRectangleDashboard.prototype.buildImage = function(image, scale) {
+    return box(200, 200, image.width * scale, image.height * scale, rgb(0, 0, 0));
   };
   getCanvas = function(name) {
     var c;
@@ -170,6 +176,7 @@
   };
 window.Dashboard = Dashboard
 window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin
+window.SimpleRectangleDashboard = SimpleRectangleDashboard
 window.XBitmap = XBitmap
 window.box = box
 window.corr = corr
