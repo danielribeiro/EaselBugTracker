@@ -3,16 +3,23 @@ DisplayObject.suppressCrossDomainErrors = true
 corr = (scale, w) -> (scale - 1)* (w / 2)
 rgb = (r, g, b, a) -> Graphics.getRGB r, g, b, a
 
-_setPos = (args...) ->
-    return [@x, @y] if args.length == 0
-    return @pos(args[0]...) if args.length == 1
-    @x = args[0]
-    @y = args[1]
-    return @
 
-patch DisplayObject, pos: _setPos
+EnhancedDisplayObjectMixin =
+    pos: (args...) ->
+        return @pos(args[0]...) if args.length == 1
+        @x = args[0]
+        @y = args[1]
+        return @
 
-patch Point, pos: _setPos
+
+    dimensions: (args...) ->
+        return @pos(args[0]...) if args.length == 1
+        @width = args[0]
+        @height = args[1]
+        return @
+
+mixin DisplayObject, EnhancedDisplayObjectMixin
+
 
 class XBitmap extends Container
     constructor: (image, scale)->
@@ -41,21 +48,20 @@ box = (@x, @y, @w, @h, color) ->
 
 
 class Dashboard
-    constructor: (@stage, @canvas, image) ->
-        img = new XBitmap(image, 1.5).pos 500, 200
+    constructor: (@stage, @canvas, image, scale) ->
+        img = new XBitmap(image, scale).pos 200, 200
         [ox, oy] = img.topLeft()
         w = img.width()
         h = img.height()
 
-        boundingBox = box(ox, oy, img.width(), img.height())
-        ifRegWas0 = box(img.x, img.y, w, h, rgb 0, 127, 0, .5)
+        @boundingBox = box(ox, oy, img.width(), img.height())
+        @ifRegWas0 = box(img.x, img.y, w, h, rgb 0, 127, 0, .5)
         nx = ox - corr(img.scale, w)
         ny = oy - corr(img.scale, h)
-        obscureCorrection = box(nx,  ny, w, h, rgb 0, 0, 127, .5)
-        @add img
-        @add boundingBox, ifRegWas0, obscureCorrection
-
-    tick: -> @stage.update()
+        @obscureCorrection = box(nx,  ny, w, h, rgb 0, 0, 127, .5)
+        @img = img
+        @add @img
+        @add @boundingBox, @ifRegWas0, @obscureCorrection
 
     add: (args...) -> @addAll args
 
@@ -64,20 +70,26 @@ class Dashboard
             @stage.addChild arg
         return
 
-getCanvas = ->
-    c = $('#canvas')
-    global.W = c.width()
-    global.H = c.height()
+getCanvas = (name) ->
+    c = $('#' + name)
     return c[0]
 
-doApp = (images) ->
-    canvas = getCanvas()
+
+drawAt = (canvasName, image, scale) ->
+    canvas = getCanvas canvasName
     stage = new Stage(canvas)
-    dash = new Dashboard(stage, canvas, images)
-    $(document).bind 'keydown', 'left', -> alert 'left'
-    $(document).bind 'keydown', 'right', -> alert 'right'
+    new Dashboard(stage, canvas, image, scale)
+    return stage
+
+
+doApp = (image) ->
+    stages = []
+    stages.push drawAt('noscale', image, 1)
+    stages.push drawAt('scale15', image, 1.5)
+
+    ticker = tick: -> st.update() for st in stages
     Ticker.setInterval(64)
-    Ticker.addListener(dash)
+    Ticker.addListener(ticker)
 
 init_web_app = ->
     img = new Image()

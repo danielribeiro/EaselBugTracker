@@ -1,5 +1,5 @@
 (function() {
-  var Dashboard, XBitmap, _setPos, box, corr, doApp, getCanvas, global, init_web_app, rgb;
+  var Dashboard, EnhancedDisplayObjectMixin, XBitmap, box, corr, doApp, drawAt, getCanvas, global, init_web_app, rgb;
   var __slice = Array.prototype.slice, __extends = function(child, parent) {
     var ctor = function(){};
     ctor.prototype = parent.prototype;
@@ -16,25 +16,29 @@
   rgb = function(r, g, b, a) {
     return Graphics.getRGB(r, g, b, a);
   };
-  _setPos = function() {
-    var args;
-    args = __slice.call(arguments, 0);
-    if (args.length === 0) {
-      return [this.x, this.y];
+  EnhancedDisplayObjectMixin = {
+    pos: function() {
+      var args;
+      args = __slice.call(arguments, 0);
+      if (args.length === 1) {
+        return this.pos.apply(this, args[0]);
+      }
+      this.x = args[0];
+      this.y = args[1];
+      return this;
+    },
+    dimensions: function() {
+      var args;
+      args = __slice.call(arguments, 0);
+      if (args.length === 1) {
+        return this.pos.apply(this, args[0]);
+      }
+      this.width = args[0];
+      this.height = args[1];
+      return this;
     }
-    if (args.length === 1) {
-      return this.pos.apply(this, args[0]);
-    }
-    this.x = args[0];
-    this.y = args[1];
-    return this;
   };
-  patch(DisplayObject, {
-    pos: _setPos
-  });
-  patch(Point, {
-    pos: _setPos
-  });
+  mixin(DisplayObject, EnhancedDisplayObjectMixin);
   XBitmap = function(image, scale) {
     XBitmap.__super__.constructor.call(this);
     this.scale = scale || 1;
@@ -66,27 +70,25 @@
     color || (color = rgb(127, 0, 0, .5));
     return new Shape(new Graphics().beginFill(color).drawRect(this.x, this.y, this.w, this.h));
   };
-  Dashboard = function(_arg, _arg2, image) {
-    var _ref, boundingBox, h, ifRegWas0, img, nx, ny, obscureCorrection, ox, oy, w;
+  Dashboard = function(_arg, _arg2, image, scale) {
+    var _ref, h, img, nx, ny, ox, oy, w;
     this.canvas = _arg2;
     this.stage = _arg;
-    img = new XBitmap(image, 1.5).pos(500, 200);
+    img = new XBitmap(image, scale).pos(200, 200);
     _ref = img.topLeft();
     ox = _ref[0];
     oy = _ref[1];
     w = img.width();
     h = img.height();
-    boundingBox = box(ox, oy, img.width(), img.height());
-    ifRegWas0 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
+    this.boundingBox = box(ox, oy, img.width(), img.height());
+    this.ifRegWas0 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
     nx = ox - corr(img.scale, w);
     ny = oy - corr(img.scale, h);
-    obscureCorrection = box(nx, ny, w, h, rgb(0, 0, 127, .5));
-    this.add(img);
-    this.add(boundingBox, ifRegWas0, obscureCorrection);
+    this.obscureCorrection = box(nx, ny, w, h, rgb(0, 0, 127, .5));
+    this.img = img;
+    this.add(this.img);
+    this.add(this.boundingBox, this.ifRegWas0, this.obscureCorrection);
     return this;
-  };
-  Dashboard.prototype.tick = function() {
-    return this.stage.update();
   };
   Dashboard.prototype.add = function() {
     var args;
@@ -102,26 +104,36 @@
     }
     return null;
   };
-  getCanvas = function() {
+  getCanvas = function(name) {
     var c;
-    c = $('#canvas');
-    global.W = c.width();
-    global.H = c.height();
+    c = $('#' + name);
     return c[0];
   };
-  doApp = function(images) {
-    var canvas, dash, stage;
-    canvas = getCanvas();
+  drawAt = function(canvasName, image, scale) {
+    var canvas, stage;
+    canvas = getCanvas(canvasName);
     stage = new Stage(canvas);
-    dash = new Dashboard(stage, canvas, images);
-    $(document).bind('keydown', 'left', function() {
-      return alert('left');
-    });
-    $(document).bind('keydown', 'right', function() {
-      return alert('right');
-    });
+    new Dashboard(stage, canvas, image, scale);
+    return stage;
+  };
+  doApp = function(image) {
+    var stages, ticker;
+    stages = [];
+    stages.push(drawAt('noscale', image, 1));
+    stages.push(drawAt('scale15', image, 1.5));
+    ticker = {
+      tick: function() {
+        var _i, _len, _ref, _result, st;
+        _result = []; _ref = stages;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          st = _ref[_i];
+          _result.push(st.update());
+        }
+        return _result;
+      }
+    };
     Ticker.setInterval(64);
-    return Ticker.addListener(dash);
+    return Ticker.addListener(ticker);
   };
   init_web_app = function() {
     var img;
@@ -132,11 +144,12 @@
     return (img.src = 'github.png');
   };
 window.Dashboard = Dashboard
+window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin
 window.XBitmap = XBitmap
-window._setPos = _setPos
 window.box = box
 window.corr = corr
 window.doApp = doApp
+window.drawAt = drawAt
 window.getCanvas = getCanvas
 window.global = global
 window.init_web_app = init_web_app
