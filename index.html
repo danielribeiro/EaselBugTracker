@@ -1,77 +1,41 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset='utf-8'>
+<html lang="en">
+  <head><meta content="text/html;charset=UTF-8" http-equiv="content-type" />
+    <title>Easel Bug Tracker</title>
+    <style type="text/css">
+        canvas {
+            border: solid #447a81 1px;
+        }
+        .hor {
+            float: left;
+}
+    </style>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/lib/json2.js" type="text/javascript"></script>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/lib/easel.js" type="text/javascript"></script>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/lib/jquery-1.4.2.js" type="text/javascript"></script>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/lib/jquery.hotkeys.js" type="text/javascript"></script>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/rbcoffee.js" type="text/javascript"></script>
+    <script src="https://github.com/danielribeiro/EaselBugTracker/raw/master/public/easelbugtracker.js" type="text/javascript"></script>
+    <script type="text/javascript">
+$(function () {init_web_app({})})
+    </script>
 
-  <title>danielribeiro/EaselBugTracker @ GitHub</title>
-
-  <style type="text/css">
-    body {
-      margin-top: 1.0em;
-      background-color: #999e5e;
-      font-family: "Helvetica,Arial,FreeSans";
-      color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-    h1 { font-size: 3.8em; color: #6661a1; margin-bottom: 3px; }
-    h1 .small { font-size: 0.4em; }
-    h1 a { text-decoration: none }
-    h2 { font-size: 1.5em; color: #6661a1; }
-    h3 { text-align: center; color: #6661a1; }
-    a { color: #6661a1; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-  </style>
 </head>
-
-<body>
-  <a href="http://github.com/danielribeiro/EaselBugTracker"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-
-  <div id="container">
-
-    <div class="download">
-      <a href="http://github.com/danielribeiro/EaselBugTracker/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/danielribeiro/EaselBugTracker/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/danielribeiro/EaselBugTracker">EaselBugTracker</a>
-      <span class="small">by <a href="http://github.com/danielribeiro">danielribeiro</a></span></h1>
-
-    <div class="description">
-      Demo of some bugs in https://github.com/gskinner/EaselJS
-    </div>
-
-    <h2>Authors</h2>
-<p>Daniel Ribeiro (danrbr@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p>Daniel Ribeiro (danrbr@gmail.com)<br/>      </p>
-
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/danielribeiro/EaselBugTracker/zipball/master">zip</a> or
-      <a href="http://github.com/danielribeiro/EaselBugTracker/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/danielribeiro/EaselBugTracker</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/danielribeiro/EaselBugTracker">danielribeiro/EaselBugTracker</a>
-    </div>
-
-  </div>
-
-  
-</body>
+  <body>
+      <div><h3>Meaning:</h3>
+          <p> Red box: the enclosing rectangle of the image
+          <p> Green box: The rectangle that has its top left on the x,y of the image
+          <p> Blue box: the offset rectangle (corr = (scale, w) -> (scale - 1)* (w / 2)) so that the
+              image is enclosed by it.
+          <h3>Use the mouse left/right arrow to rotate the images</h3>
+      </div>
+      <div class="hor">
+          <h2>With no Scale</h2>
+          <canvas id="noscale" width="500" height="500"></canvas>
+      </div>
+      <div class ="hor">
+          <h2>With a Scale of 1.5</h2>
+      <canvas id="scale15" width="500" height="500"></canvas>
+      </div>
+  </body>
 </html>
