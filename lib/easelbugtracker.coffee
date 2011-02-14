@@ -70,6 +70,12 @@ class Dashboard
             @stage.addChild arg
         return
 
+    rotateLeft: -> @img.rotation -= 15
+
+    rotateRight: -> @img.rotation += 15
+
+    update: -> @stage.update()
+
 getCanvas = (name) ->
     c = $('#' + name)
     return c[0]
@@ -77,17 +83,22 @@ getCanvas = (name) ->
 
 drawAt = (canvasName, image, scale) ->
     canvas = getCanvas canvasName
-    stage = new Stage(canvas)
-    new Dashboard(stage, canvas, image, scale)
-    return stage
+    new Dashboard(new Stage(canvas), canvas, image, scale)
 
 
 doApp = (image) ->
-    stages = []
-    stages.push drawAt('noscale', image, 1)
-    stages.push drawAt('scale15', image, 1.5)
-
-    ticker = tick: -> st.update() for st in stages
+    dashes = []
+    dashes.push drawAt('noscale', image, 1)
+    dashes.push drawAt('scale15', image, 1.5)
+    $(document).bind 'keydown', 'left', ->
+        dash.rotateLeft() for dash in dashes
+        return
+    $(document).bind 'keydown', 'right', ->
+        dash.rotateRight() for dash in dashes
+        return
+    ticker = tick: ->
+        dash.update() for dash in dashes
+        return
     Ticker.setInterval(64)
     Ticker.addListener(ticker)
 

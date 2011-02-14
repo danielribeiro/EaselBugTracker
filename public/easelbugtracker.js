@@ -104,32 +104,57 @@
     }
     return null;
   };
+  Dashboard.prototype.rotateLeft = function() {
+    return this.img.rotation -= 15;
+  };
+  Dashboard.prototype.rotateRight = function() {
+    return this.img.rotation += 15;
+  };
+  Dashboard.prototype.update = function() {
+    return this.stage.update();
+  };
   getCanvas = function(name) {
     var c;
     c = $('#' + name);
     return c[0];
   };
   drawAt = function(canvasName, image, scale) {
-    var canvas, stage;
+    var canvas;
     canvas = getCanvas(canvasName);
-    stage = new Stage(canvas);
-    new Dashboard(stage, canvas, image, scale);
-    return stage;
+    return new Dashboard(new Stage(canvas), canvas, image, scale);
   };
   doApp = function(image) {
-    var stages, ticker;
-    stages = [];
-    stages.push(drawAt('noscale', image, 1));
-    stages.push(drawAt('scale15', image, 1.5));
+    var dashes, ticker;
+    dashes = [];
+    dashes.push(drawAt('noscale', image, 1));
+    dashes.push(drawAt('scale15', image, 1.5));
+    $(document).bind('keydown', 'left', function() {
+      var _i, _len, _ref, dash;
+      _ref = dashes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        dash = _ref[_i];
+        dash.rotateLeft();
+      }
+      return null;
+    });
+    $(document).bind('keydown', 'right', function() {
+      var _i, _len, _ref, dash;
+      _ref = dashes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        dash = _ref[_i];
+        dash.rotateRight();
+      }
+      return null;
+    });
     ticker = {
       tick: function() {
-        var _i, _len, _ref, _result, st;
-        _result = []; _ref = stages;
+        var _i, _len, _ref, dash;
+        _ref = dashes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          st = _ref[_i];
-          _result.push(st.update());
+          dash = _ref[_i];
+          dash.update();
         }
-        return _result;
+        return null;
       }
     };
     Ticker.setInterval(64);

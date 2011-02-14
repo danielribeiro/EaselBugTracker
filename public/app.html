@@ -19,6 +19,13 @@ $(function () {init_web_app({})})
 
 </head>
   <body>
+      <div><h3>Meaning:</h3>
+          <p> Red box: the enclosing rectangle of the image
+          <p> Green box: The rectangle that has its top left on the x,y of the image
+          <p> Blue box: the offset rectangle (corr = (scale, w) -> (scale - 1)* (w / 2)) so that the
+              image is enclosed by it.
+          <h3>Use the mouse left/right arrow to rotate the images</h3>
+      </div>
       <canvas id="noscale" width="500" height="500"></canvas>
       <canvas id="scale15" width="500" height="500"></canvas>
   </body>
