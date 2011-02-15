@@ -1,5 +1,5 @@
 (function() {
-  var Dashboard, EnhancedDisplayObjectMixin, SimpleRectangleDashboard, XBitmap, box, corr, doApp, drawAt, getCanvas, global, init_web_app, rgb;
+  var Dashboard, DashboardFixxed, EnhancedDisplayObjectMixin, FixedXBitmap, XBitmap, box, corr, doApp, drawAt, drawFixxedAt, getCanvas, global, init_web_app, rgb;
   var __slice = Array.prototype.slice, __extends = function(child, parent) {
     var ctor = function(){};
     ctor.prototype = parent.prototype;
@@ -61,6 +61,28 @@
   XBitmap.prototype.getWidth = function() {
     return this.image.width * this.scale;
   };
+  FixedXBitmap = function(image, scale) {
+    FixedXBitmap.__super__.constructor.call(this, image);
+    this.scale = scale || 1;
+    this.setImage(image);
+    this.scaleX = (this.scaleY = this.scale);
+    return this;
+  };
+  __extends(FixedXBitmap, Bitmap);
+  FixedXBitmap.prototype.setImage = function(image) {
+    this.image = image;
+    this.regX = image.width / 2;
+    return (this.regY = image.height / 2);
+  };
+  FixedXBitmap.prototype.topLeft = function() {
+    return [this.x - this.regX * this.scale, this.y - this.regY * this.scale];
+  };
+  FixedXBitmap.prototype.getHeight = function() {
+    return this.image.height * this.scale;
+  };
+  FixedXBitmap.prototype.getWidth = function() {
+    return this.image.width * this.scale;
+  };
   box = function(x, y, w, h, color) {
     var ret;
     color || (color = rgb(127, 0, 0, .5));
@@ -112,12 +134,12 @@
   Dashboard.prototype.update = function() {
     return this.stage.update();
   };
-  SimpleRectangleDashboard = function() {
+  DashboardFixxed = function() {
     return Dashboard.apply(this, arguments);
   };
-  __extends(SimpleRectangleDashboard, Dashboard);
-  SimpleRectangleDashboard.prototype.buildImage = function(image, scale) {
-    return box(200, 200, image.width * scale, image.height * scale, rgb(0, 0, 0));
+  __extends(DashboardFixxed, Dashboard);
+  DashboardFixxed.prototype.buildImage = function(image, scale) {
+    return new FixedXBitmap(image, scale).pos(200, 200);
   };
   getCanvas = function(name) {
     var c;
@@ -129,11 +151,17 @@
     canvas = getCanvas(canvasName);
     return new Dashboard(new Stage(canvas), canvas, image, scale);
   };
+  drawFixxedAt = function(canvasName, image, scale) {
+    var canvas;
+    canvas = getCanvas(canvasName);
+    return new DashboardFixxed(new Stage(canvas), canvas, image, scale);
+  };
   doApp = function(image) {
     var dashes, ticker;
     dashes = [];
     dashes.push(drawAt('noscale', image, 1));
     dashes.push(drawAt('scale15', image, 1.5));
+    dashes.push(drawFixxedAt('fixxed', image, 1.5));
     $(document).bind('keydown', 'left', function() {
       var _i, _len, _ref, dash;
       _ref = dashes;
@@ -175,13 +203,15 @@
     return (img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/github.png');
   };
 window.Dashboard = Dashboard
+window.DashboardFixxed = DashboardFixxed
 window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin
-window.SimpleRectangleDashboard = SimpleRectangleDashboard
+window.FixedXBitmap = FixedXBitmap
 window.XBitmap = XBitmap
 window.box = box
 window.corr = corr
 window.doApp = doApp
 window.drawAt = drawAt
+window.drawFixxedAt = drawFixxedAt
 window.getCanvas = getCanvas
 window.global = global
 window.init_web_app = init_web_app

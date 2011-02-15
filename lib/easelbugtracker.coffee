@@ -21,7 +21,6 @@ EnhancedDisplayObjectMixin =
 mixin DisplayObject, EnhancedDisplayObjectMixin
 
 
-
 class XBitmap extends Bitmap
     constructor: (image, scale)->
         super(image)
@@ -39,6 +38,25 @@ class XBitmap extends Bitmap
     getHeight: -> @image.height * @scale
 
     getWidth: -> @image.width * @scale
+
+class FixedXBitmap extends Bitmap
+    constructor: (image, scale)->
+        super(image)
+        @scale = scale or 1
+        @setImage image
+        @scaleX = @scaleY = @scale
+
+    setImage: (image) ->
+        @image = image
+        @regX = image.width / 2
+        @regY = image.height / 2
+
+    topLeft: -> [@x - @regX * @scale, @y - @regY * @scale]
+
+    getHeight: -> @image.height * @scale
+
+    getWidth: -> @image.width * @scale
+
 
 box = (x, y, w, h, color) ->
     color or= rgb 127, 0, 0, .5
@@ -78,10 +96,8 @@ class Dashboard
 
     update: -> @stage.update()
 
-
-class SimpleRectangleDashboard extends Dashboard
-    buildImage: (image, scale) ->
-        box(200, 200, image.width * scale, image.height * scale, rgb 0, 0, 0)
+class DashboardFixxed extends Dashboard
+    buildImage: (image, scale) -> new FixedXBitmap(image, scale).pos 200, 200
 
 getCanvas = (name) ->
     c = $('#' + name)
@@ -92,11 +108,16 @@ drawAt = (canvasName, image, scale) ->
     canvas = getCanvas canvasName
     new Dashboard(new Stage(canvas), canvas, image, scale)
 
+drawFixxedAt = (canvasName, image, scale) ->
+    canvas = getCanvas canvasName
+    new DashboardFixxed(new Stage(canvas), canvas, image, scale)
 
 doApp = (image) ->
     dashes = []
     dashes.push drawAt('noscale', image, 1)
     dashes.push drawAt('scale15', image, 1.5)
+    dashes.push drawFixxedAt('fixxed', image, 1.5)
+
     $(document).bind 'keydown', 'left', ->
         dash.rotateLeft() for dash in dashes
         return
