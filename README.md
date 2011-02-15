@@ -3,7 +3,7 @@ EaselBugTracker
 
 Showcasing some bugs (weren't bugs after [all](https://github.com/gskinner/EaselJS/issues#issue/14)) with respect to scaling.
 
-Live demo: http://danielribeiro.github.com/EaselBugTracker/
+Live demo: [http://danielribeiro.github.com/EaselBugTracker/](http://danielribeiro.github.com/EaselBugTracker/)
 
 Running locally:
 
