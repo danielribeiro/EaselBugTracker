@@ -1,14 +1,7 @@
 (function() {
-  var Dashboard, DashboardFixxed, EnhancedDisplayObjectMixin, doApp, getCanvas, global, init_web_app, rgb;
+  var Dashboard, EnhancedDisplayObjectMixin, Img, doApp, doApp2, getCanvas, global, init_web_app, rgb;
   var __slice = Array.prototype.slice, __bind = function(func, context) {
     return function(){ return func.apply(context, arguments); };
-  }, __extends = function(child, parent) {
-    var ctor = function(){};
-    ctor.prototype = parent.prototype;
-    child.prototype = new ctor();
-    child.prototype.constructor = child;
-    if (typeof parent.extended === "function") parent.extended(child);
-    child.__super__ = parent.prototype;
   };
   global = window;
   DisplayObject.suppressCrossDomainErrors = true;
@@ -56,17 +49,17 @@
   };
   mixin(DisplayObject, EnhancedDisplayObjectMixin);
   Dashboard = function(_arg, _arg2, image) {
-    var offset;
+    var cur;
     this.canvas = _arg2;
     this.stage = _arg;
     this.composite = new Container();
-    offset = 0;
+    cur = 0;
     (5).times(__bind(function() {
       var b;
       b = new Bitmap(image);
       this.composite.addChild(b);
-      b.y = offset;
-      return offset += image.height;
+      b.y = image.height * cur;
+      return cur++;
     }, this));
     this.composite.pos(240, 180);
     this.stage.addChild(this.composite);
@@ -81,20 +74,27 @@
   Dashboard.prototype.tick = function() {
     return this.stage.update();
   };
-  DashboardFixxed = function() {
-    return Dashboard.apply(this, arguments);
-  };
-  __extends(DashboardFixxed, Dashboard);
-  DashboardFixxed.prototype.buildImage = function(image, scale) {
-    return new FixedXBitmap(image, scale).pos(200, 200);
-  };
   getCanvas = function(name) {
     var c;
     c = $('#' + name);
     return c[0];
   };
+  Img = function(_arg, _arg2, _arg3, _arg4) {
+    this.y = _arg4;
+    this.x = _arg3;
+    this.image = _arg2;
+    this.ctx = _arg;
+    return this;
+  };
+  Img.prototype.draw = function() {
+    return this.ctx.drawImage(this.image, this.x, this.y);
+  };
+  Img.prototype.animate = function() {
+    this.draw();
+    return this.move();
+  };
   doApp = function(image) {
-    var canvas, dash;
+    var canvas, ctx, dash;
     canvas = getCanvas('canvas');
     dash = new Dashboard(new Stage(canvas), canvas, image);
     $(document).bind('keydown', 'left', function() {
@@ -104,7 +104,31 @@
       return dash.rotateRight();
     });
     Ticker.setInterval(64);
-    return Ticker.addListener(dash);
+    Ticker.addListener(dash);
+    ctx = $('#canvas')[0].getContext("2d");
+    return (ctx.fillStyle = "rgba(0, 0, 125, .7)");
+  };
+  doApp2 = function(image) {
+    var anim, b1, b2, canvas, ctx, deg;
+    canvas = getCanvas('canvas');
+    ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgb(200, 0, 0)";
+    ctx.strokeStyle = "rgb(0, 200, 0)";
+    ctx.lineWidth = 4;
+    b1 = new Img(ctx, image, -16, -16);
+    b2 = new Img(ctx, image, -16, 0);
+    deg = 0;
+    anim = function() {
+      deg += 0.016;
+      ctx.clearRect(0, 0, 300, 300);
+      ctx.save();
+      ctx.translate(150, 150);
+      ctx.rotate(deg);
+      b1.draw();
+      b2.draw();
+      return ctx.restore();
+    };
+    return setInterval(anim, 10);
   };
   init_web_app = function() {
     var img;
@@ -115,9 +139,10 @@
     return (img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/rope.png');
   };
 window.Dashboard = Dashboard
-window.DashboardFixxed = DashboardFixxed
 window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin
+window.Img = Img
 window.doApp = doApp
+window.doApp2 = doApp2
 window.getCanvas = getCanvas
 window.global = global
 window.init_web_app = init_web_app

@@ -31,12 +31,12 @@ mixin DisplayObject, EnhancedDisplayObjectMixin
 class Dashboard
     constructor: (@stage, @canvas, image) ->
         @composite = new Container
-        offset = 0
+        cur = 0
         5.times =>
             b = new Bitmap(image)
             @composite.addChild b
-            b.y = offset
-            offset += image.height
+            b.y = image.height * cur
+            cur++
         @composite.pos(240, 180)
         @stage.addChild @composite
 
@@ -46,12 +46,21 @@ class Dashboard
 
     tick: -> @stage.update()
 
-class DashboardFixxed extends Dashboard
-    buildImage: (image, scale) -> new FixedXBitmap(image, scale).pos 200, 200
-
 getCanvas = (name) ->
     c = $('#' + name)
     return c[0]
+
+class Img
+    constructor: (@ctx, @image, @x, @y) ->
+
+    draw: ->
+        #@ctx.fillRect(@x, @y, @image.height, @image.width)
+        @ctx.drawImage(@image, @x, @y)
+
+    animate: ->
+        @draw()
+        @move()
+
 
 doApp = (image) ->
     canvas = getCanvas 'canvas'
@@ -60,10 +69,34 @@ doApp = (image) ->
     $(document).bind 'keydown', 'right', -> dash.rotateRight()
     Ticker.setInterval(64)
     Ticker.addListener(dash)
+    ctx = $('#canvas')[0].getContext("2d")
+    ctx.fillStyle = "rgba(0, 0, 125, .7)"
+
+doApp2 = (image) ->
+    canvas = getCanvas 'canvas'
+    ctx = canvas.getContext("2d")
+    ctx.fillStyle = "rgb(200, 0, 0)"
+    ctx.strokeStyle = "rgb(0, 200, 0)"
+    ctx.lineWidth = 4
+    b1 = new Img(ctx, image, -16, -16)
+    b2 = new Img(ctx, image, -16, 0)
+    deg = 0
+    anim = ->
+        deg += 0.016
+        ctx.clearRect(0,0,300,300)
+        ctx.save()
+        ctx.translate(150, 150)
+        ctx.rotate(deg)
+        b1.draw()
+        b2.draw()
+        ctx.restore()
+
+    setInterval anim, 10
+
 
 init_web_app = ->
     img = new Image()
     img.onload = -> doApp img
-    # img.src = 'rope.png'
+    #img.src = 'rope.png'
     img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/rope.png'
 
