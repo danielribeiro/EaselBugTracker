@@ -1,5 +1,5 @@
 (function() {
-  var abstract_method, abstract_property, define, methods, methodsOfInstance, methodsOfInstanceWhile, methodsWhile, mixin, mixinWith, patch, puts, raise;
+  var abstract_method, abstract_property, define, eq, methods, methodsOfInstance, methodsOfInstanceWhile, methodsWhile, mixin, mixinWith, patch, puts, raise;
   var __slice = Array.prototype.slice, __hasProp = Object.prototype.hasOwnProperty;
   puts = function() {
     var _i, _len, _ref, arg, args;
@@ -22,6 +22,9 @@
   };
   abstract_property = function() {
     return raise("Abstract property");
+  };
+  eq = function(x, y) {
+    return x == y;
   };
   define = function(clas, methodName, func) {
     return (clas.prototype[methodName] = func);
@@ -102,6 +105,7 @@
 window.abstract_method = abstract_method
 window.abstract_property = abstract_property
 window.define = define
+window.eq = eq
 window.methods = methods
 window.methodsOfInstance = methodsOfInstance
 window.methodsOfInstanceWhile = methodsOfInstanceWhile

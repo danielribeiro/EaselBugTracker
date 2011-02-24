@@ -8,6 +8,8 @@ raise = (message) -> throw new Error(message)
 abstract_method = -> raise "Subclass responsability"
 abstract_property = -> raise "Abstract property"
 
+eq = (x, y) -> return `x == y`
+
 # Define a method called methodName, with body func on the class given
 define = (clas, methodName, func) -> clas.prototype[methodName] = func
 
