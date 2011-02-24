@@ -1,6 +1,8 @@
 (function() {
-  var Dashboard, DashboardFixxed, EnhancedDisplayObjectMixin, FixedXBitmap, XBitmap, box, corr, doApp, drawAt, drawFixxedAt, getCanvas, global, init_web_app, rgb;
-  var __slice = Array.prototype.slice, __extends = function(child, parent) {
+  var Dashboard, DashboardFixxed, EnhancedDisplayObjectMixin, doApp, getCanvas, global, init_web_app, rgb;
+  var __slice = Array.prototype.slice, __bind = function(func, context) {
+    return function(){ return func.apply(context, arguments); };
+  }, __extends = function(child, parent) {
     var ctor = function(){};
     ctor.prototype = parent.prototype;
     child.prototype = new ctor();
@@ -10,12 +12,26 @@
   };
   global = window;
   DisplayObject.suppressCrossDomainErrors = true;
-  corr = function(scale, w) {
-    return (scale - 1) * (w / 2);
-  };
   rgb = function(r, g, b, a) {
     return Graphics.getRGB(r, g, b, a);
   };
+  patch(Number, {
+    mod: function(arg) {
+      if (this >= 0) {
+        return this % arg;
+      }
+      return (this + arg) % arg;
+    },
+    times: function(fn) {
+      var _result, i;
+      i = this;
+      _result = [];
+      while (i-- > 0) {
+        _result.push(fn());
+      }
+      return _result;
+    }
+  });
   EnhancedDisplayObjectMixin = {
     pos: function() {
       var args;
@@ -39,99 +55,30 @@
     }
   };
   mixin(DisplayObject, EnhancedDisplayObjectMixin);
-  XBitmap = function(image, scale) {
-    XBitmap.__super__.constructor.call(this, image);
-    this.scale = scale || 1;
-    this.setImage(image);
-    this.scaleX = (this.scaleY = this.scale);
-    return this;
-  };
-  __extends(XBitmap, Bitmap);
-  XBitmap.prototype.setImage = function(image) {
-    this.image = image;
-    this.regX = this.getWidth() / 2;
-    return (this.regY = this.getHeight() / 2);
-  };
-  XBitmap.prototype.topLeft = function() {
-    return [this.x - this.regX, this.y - this.regY];
-  };
-  XBitmap.prototype.getHeight = function() {
-    return this.image.height * this.scale;
-  };
-  XBitmap.prototype.getWidth = function() {
-    return this.image.width * this.scale;
-  };
-  FixedXBitmap = function(image, scale) {
-    FixedXBitmap.__super__.constructor.call(this, image);
-    this.scale = scale || 1;
-    this.setImage(image);
-    this.scaleX = (this.scaleY = this.scale);
-    return this;
-  };
-  __extends(FixedXBitmap, Bitmap);
-  FixedXBitmap.prototype.setImage = function(image) {
-    this.image = image;
-    this.regX = image.width / 2;
-    return (this.regY = image.height / 2);
-  };
-  FixedXBitmap.prototype.topLeft = function() {
-    return [this.x - this.regX * this.scale, this.y - this.regY * this.scale];
-  };
-  FixedXBitmap.prototype.getHeight = function() {
-    return this.image.height * this.scale;
-  };
-  FixedXBitmap.prototype.getWidth = function() {
-    return this.image.width * this.scale;
-  };
-  box = function(x, y, w, h, color) {
-    var ret;
-    color || (color = rgb(127, 0, 0, .5));
-    return (ret = new Shape(new Graphics().beginFill(color).drawRect(x, y, w, h)));
-  };
-  Dashboard = function(_arg, _arg2, image, scale) {
-    var _ref, h, img, nx, ny, ox, oy, w;
+  Dashboard = function(_arg, _arg2, image) {
+    var offset;
     this.canvas = _arg2;
     this.stage = _arg;
-    img = this.buildImage(image, scale);
-    _ref = img.topLeft();
-    ox = _ref[0];
-    oy = _ref[1];
-    w = img.getWidth();
-    h = img.getHeight();
-    this.boundingBox = box(ox, oy, img.getWidth(), img.getHeight());
-    this.ifRegWas0 = box(img.x, img.y, w, h, rgb(0, 127, 0, .5));
-    nx = ox - corr(img.scale, w);
-    ny = oy - corr(img.scale, h);
-    this.obscureCorrection = box(nx, ny, w, h, rgb(0, 0, 127, .5));
-    this.img = img;
-    this.add(this.img);
-    this.add(this.boundingBox, this.ifRegWas0, this.obscureCorrection);
+    this.composite = new Container();
+    offset = 0;
+    (5).times(__bind(function() {
+      var b;
+      b = new Bitmap(image);
+      this.composite.addChild(b);
+      b.y = offset;
+      return offset += image.height;
+    }, this));
+    this.composite.pos(240, 180);
+    this.stage.addChild(this.composite);
     return this;
   };
-  Dashboard.prototype.buildImage = function(image, scale) {
-    return new XBitmap(image, scale).pos(200, 200);
-  };
-  Dashboard.prototype.add = function() {
-    var args;
-    args = __slice.call(arguments, 0);
-    return this.addAll(args);
-  };
-  Dashboard.prototype.addAll = function(array) {
-    var _i, _len, _ref, arg;
-    _ref = array;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      arg = _ref[_i];
-      this.stage.addChild(arg);
-    }
-    return null;
-  };
   Dashboard.prototype.rotateLeft = function() {
-    return this.img.rotation -= 15;
+    return this.composite.rotation -= 15;
   };
   Dashboard.prototype.rotateRight = function() {
-    return this.img.rotation += 15;
+    return this.composite.rotation += 15;
   };
-  Dashboard.prototype.update = function() {
+  Dashboard.prototype.tick = function() {
     return this.stage.update();
   };
   DashboardFixxed = function() {
@@ -146,53 +93,18 @@
     c = $('#' + name);
     return c[0];
   };
-  drawAt = function(canvasName, image, scale) {
-    var canvas;
-    canvas = getCanvas(canvasName);
-    return new Dashboard(new Stage(canvas), canvas, image, scale);
-  };
-  drawFixxedAt = function(canvasName, image, scale) {
-    var canvas;
-    canvas = getCanvas(canvasName);
-    return new DashboardFixxed(new Stage(canvas), canvas, image, scale);
-  };
   doApp = function(image) {
-    var dashes, ticker;
-    dashes = [];
-    dashes.push(drawAt('noscale', image, 1));
-    dashes.push(drawAt('scale15', image, 1.5));
-    dashes.push(drawFixxedAt('fixxed', image, 1.5));
+    var canvas, dash;
+    canvas = getCanvas('canvas');
+    dash = new Dashboard(new Stage(canvas), canvas, image);
     $(document).bind('keydown', 'left', function() {
-      var _i, _len, _ref, dash;
-      _ref = dashes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        dash = _ref[_i];
-        dash.rotateLeft();
-      }
-      return null;
+      return dash.rotateLeft();
     });
     $(document).bind('keydown', 'right', function() {
-      var _i, _len, _ref, dash;
-      _ref = dashes;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        dash = _ref[_i];
-        dash.rotateRight();
-      }
-      return null;
+      return dash.rotateRight();
     });
-    ticker = {
-      tick: function() {
-        var _i, _len, _ref, dash;
-        _ref = dashes;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          dash = _ref[_i];
-          dash.update();
-        }
-        return null;
-      }
-    };
     Ticker.setInterval(64);
-    return Ticker.addListener(ticker);
+    return Ticker.addListener(dash);
   };
   init_web_app = function() {
     var img;
@@ -200,18 +112,12 @@
     img.onload = function() {
       return doApp(img);
     };
-    return (img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/github.png');
+    return (img.src = 'https://github.com/danielribeiro/EaselBugTracker/raw/master/public/rope.png');
   };
 window.Dashboard = Dashboard
 window.DashboardFixxed = DashboardFixxed
 window.EnhancedDisplayObjectMixin = EnhancedDisplayObjectMixin
-window.FixedXBitmap = FixedXBitmap
-window.XBitmap = XBitmap
-window.box = box
-window.corr = corr
 window.doApp = doApp
-window.drawAt = drawAt
-window.drawFixxedAt = drawFixxedAt
 window.getCanvas = getCanvas
 window.global = global
 window.init_web_app = init_web_app

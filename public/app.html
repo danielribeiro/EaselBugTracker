@@ -22,24 +22,10 @@ $(function () {init_web_app({})})
 
 </head>
   <body>
-      <div><h3>Meaning:</h3>
-          <p> Red box: the enclosing rectangle of the image
-          <p> Green box: The rectangle that has its top left on the x,y of the image
-          <p> Blue box: the offset rectangle (corr = (scale, w) -> (scale - 1)* (w / 2)) so that the
-              image is enclosed by it.
-          <h3>Use the mouse left/right arrow to rotate the images</h3>
+      <div><h3>Issue:</h3>
+          <p>As the container rotate, the image start being apart.
+          <p>Use keyboard arrows to rotate
       </div>
-      <div class="hor">
-          <h2>With no Scale</h2>
-          <canvas id="noscale" width="500" height="500"></canvas>
-      </div>
-      <div class ="hor">
-          <h2>With a Scale of 1.5</h2>
-      <canvas id="scale15" width="500" height="500"></canvas>
-      </div>
-      <div class ="hor">
-          <h2>(Fixed) With a Scale of 1.5, but reg without considering the scale</h2>
-      <canvas id="fixxed" width="500" height="500"></canvas>
-      </div>
+        <canvas id="canvas" width="500" height="500"></canvas>
   </body>
 </html>
